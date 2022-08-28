@@ -7,25 +7,32 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LexiconUniversity.Core;
 using LexiconUniversity.Data;
+using LexiconUniversity.Web.Models;
+using AutoMapper;
 
 namespace LexiconUniversity.Web.Controllers
 {
     public class StudentsController : Controller
     {
         private readonly LexiconUniversityContext _context;
+        private readonly IMapper mapper;
 
-        public StudentsController(LexiconUniversityContext context)
+        public StudentsController (LexiconUniversityContext context, IMapper mapper)
         {
             _context = context;
+             this.mapper=mapper;
         }
 
         // GET: Students
         public async Task<IActionResult> Index()
         {
-              return _context.Student != null ? 
-                          View(await _context.Student.ToListAsync()) :
-                          Problem("Entity set 'LexiconUniversityContext.Student'  is null.");
+            var viewModel = await mapper.ProjectTo<StudentIndexViewModel>(_context.Student).ToListAsync();
+            return View(viewModel);
         }
+
+      
+       
+     
 
         // GET: Students/Details/5
         public async Task<IActionResult> Details(int? id)

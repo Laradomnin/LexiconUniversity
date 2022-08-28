@@ -1,12 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using LexiconUniversity.Data;
+using AutoMapper;
+using LexiconUniversity.Web.AutoMapper;
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<LexiconUniversityContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("LexiconUniversityContext") ?? throw new InvalidOperationException("Connection string 'LexiconUniversityContext' not found.")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddAutoMapper(typeof(MapperProfile));
 
 var app = builder.Build();
 
