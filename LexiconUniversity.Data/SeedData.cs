@@ -17,9 +17,51 @@ namespace LexiconUniversity.Data
             if (await db.Student.AnyAsync()) return;
 
             faker = new Faker("sv");
+
             var students = GenerateStudents(30);
             await db.AddRangeAsync(students);
+
+            var courses = GenerateCourses(10);
+            await db.AddRangeAsync(courses);
+
+            var enrollments = GenerateEnrollments(courses, students);
+            await db.AddRangeAsync(enrollments);
+
             await db.SaveChangesAsync();    
+        }
+
+        private static IEnumerable<Enrollment> GenerateEnrollments(IEnumerable<Course> courses, IEnumerable<Student> students)
+        {
+            Random rnd = new Random();
+            var enrollments = new List<Enrollment>();
+            foreach (var student in students)
+            {
+                foreach(var course in courses)
+                {
+                    if (rnd.Next(0, 5) == 0)
+                    {
+                        var enrollment = new Enrollment
+                        {
+                            Course = course,
+                            Student = student,
+                            Grade = rnd.Next(1, 6)
+                        };
+                        enrollments.Add(enrollment);
+                    } 
+                }
+            }
+            return enrollments;
+        }
+
+        private static IEnumerable<Course> GenerateCourses(int numberOfCourses)
+        {
+            var courses = new List<Course>();
+            for (int i = 0; i < numberOfCourses; i++)
+            {
+                var title = faker.Company.Bs();
+                courses.Add(new Course(title));
+            }
+            return courses;
         }
 
         private static IEnumerable<Student> GenerateStudents(int numberOfStudents)
