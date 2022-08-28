@@ -9,6 +9,7 @@ using LexiconUniversity.Core;
 using LexiconUniversity.Data;
 using LexiconUniversity.Web.Models;
 using AutoMapper;
+using Bogus;
 
 namespace LexiconUniversity.Web.Controllers
 {
@@ -16,11 +17,14 @@ namespace LexiconUniversity.Web.Controllers
     {
         private readonly LexiconUniversityContext _context;
         private readonly IMapper mapper;
+        private readonly Faker faker;
+        
 
         public StudentsController (LexiconUniversityContext context, IMapper mapper)
         {
             _context = context;
              this.mapper=mapper;
+            faker = new Faker("sv");
         }
 
         // GET: Students
@@ -63,15 +67,28 @@ namespace LexiconUniversity.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Avatar,FirstName,LastName,Email")] Student student)
+        public async Task<IActionResult> Create(StudentCreateViewModel viewModel, Address Address)
         {
             if (ModelState.IsValid)
             {
+                var student = new Student(faker.Internet.Avatar(),viewModel.FirstName,viewModel.LastName,viewModel.Email);
+                
+                {
+                    Address = new Address
+                    {
+
+                        City = viewModel.AddressCity,
+                        Street = viewModel.AddressZipCode,
+                        ZipCode = viewModel.AddressZipCode,
+                    };
+                
+
+                }
                 _context.Add(student);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(student);
+            return View(viewModel);
         }
 
         // GET: Students/Edit/5
