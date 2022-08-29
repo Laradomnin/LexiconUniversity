@@ -40,14 +40,18 @@ namespace LexiconUniversity.Web.Controllers
 
         // GET: Students/Details/5
         public async Task<IActionResult> Details(int? id)
+             
         {
             if (id == null || _context.Student == null)
             {
                 return NotFound();
             }
 
-            var student = await _context.Student
-                .FirstOrDefaultAsync(m => m.Id == id);
+            //var student = await _context.Student
+            //    .FirstOrDefaultAsync(m => m.Id == id);
+            var student = await mapper.ProjectTo<StudentDetailsViewModel>(_context.Student)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
             if (student == null)
             {
                 return NotFound();
@@ -55,6 +59,21 @@ namespace LexiconUniversity.Web.Controllers
 
             return View(student);
         }
+        //{
+        //    if (id == null || _context.Student == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    var student = await _context.Student
+        //        .FirstOrDefaultAsync(m => m.Id == id);
+        //    if (student == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    return View(student);
+        //}
 
         // GET: Students/Create
         public IActionResult Create()
@@ -193,3 +212,7 @@ namespace LexiconUniversity.Web.Controllers
         }
     }
 }
+
+
+
+

@@ -15,7 +15,7 @@ namespace LexiconUniversity.Web.Models
         public string AddressZipCode { get; set; }
         public int NrOfEnrollments { get; set; }
 
-        public IEnumerable<Course> courses { get; set; }
+        public IEnumerable<Course> Courses { get; set; }
         
 
     }
