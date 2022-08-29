@@ -67,23 +67,24 @@ namespace LexiconUniversity.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(StudentCreateViewModel viewModel, Address Address)
+        public async Task<IActionResult> Create(StudentCreateViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
-                var student = new Student(faker.Internet.Avatar(),viewModel.FirstName,viewModel.LastName,viewModel.Email);
-                
-                {
-                    Address = new Address
-                    {
+                var student = mapper.Map<Student>(viewModel);
+                student.Avatar = faker.Internet.Avatar();
+                //var student = new Student(faker.Internet.Avatar(), viewModel.FirstName, viewModel.LastName, viewModel.Email)
+                //{
+                //    Address = new Address
+                //    {
 
-                        City = viewModel.AddressCity,
-                        Street = viewModel.AddressZipCode,
-                        ZipCode = viewModel.AddressZipCode,
-                    };
-                
+                //        City = viewModel.AddressCity,
+                //        Street = viewModel.AddressStreet,
+                //        ZipCode = viewModel.AddressZipCode,
+                //    }
 
-                }
+
+                //};
                 _context.Add(student);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -99,7 +100,10 @@ namespace LexiconUniversity.Web.Controllers
                 return NotFound();
             }
 
-            var student = await _context.Student.FindAsync(id);
+            //var student = await _context.Student.FindAsync(id);
+
+            var student = await mapper.ProjectTo<StudentEditViewModel>(_context.Student)
+                .FirstOrDefaultAsync(s=>s.Id==id);
             if (student == null)
             {
                 return NotFound();
@@ -112,9 +116,9 @@ namespace LexiconUniversity.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Avatar,FirstName,LastName,Email")] Student student)
+        public async Task<IActionResult> Edit(int id,StudentEditViewModel viewModel)
         {
-            if (id != student.Id)
+            if (id != viewModel.Id)
             {
                 return NotFound();
             }
@@ -123,12 +127,16 @@ namespace LexiconUniversity.Web.Controllers
             {
                 try
                 {
-                    _context.Update(student);
+                    var student = await _context.Student.Include(s=>s.Address)
+                        .FirstOrDefaultAsync(s => s.Id == id);  
+                        
+                        mapper.Map( viewModel, student);
+                        _context.Update (student);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!StudentExists(student.Id))
+                    if (!StudentExists (viewModel.Id))
                     {
                         return NotFound();
                     }
@@ -139,7 +147,7 @@ namespace LexiconUniversity.Web.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(student);
+            return View(viewModel);
         }
 
         // GET: Students/Delete/5

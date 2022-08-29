@@ -9,6 +9,9 @@ namespace LexiconUniversity.Web.AutoMapper
         public MapperProfile()
         {
             CreateMap <Student, StudentIndexViewModel>();
+            CreateMap<Student, StudentCreateViewModel>().ReverseMap();
+            CreateMap<Student, StudentEditViewModel>().ReverseMap();
         }
+        
     }
 }
